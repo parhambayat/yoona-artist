@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<title>A Collection of Fragments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Libre+Baskerville:ital@0;1&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ink: #000000;
+    --paper: #f5f5f5;
+    --ash: #c8c8c8;
+    --bone: #4a1212;
+    --charcoal: #0a0a0a;
+    --mist: #7a1818;
+    --crimson: #5c1010;
+    --accent: #8b1e1e;
+    --shadow: rgba(0,0,0,0.4);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    body { cursor: none; }
+  }
+
+  /* CUSTOM CURSOR — desktop only */
+  .cursor,
+  .cursor-ring {
+    display: none;
+    position: fixed;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: normal;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cursor {
+      display: block;
+      width: 8px; height: 8px;
+      background: var(--paper);
+      border-radius: 50%;
+      z-index: 9999;
+      transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+    }
+    .cursor-ring {
+      display: block;
+      width: 36px; height: 36px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      z-index: 9998;
+      transition: transform 0.18s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+      opacity: 0.55;
+    }
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9997;
+    opacity: 0.5;
+  }
+
+  /* ───────────────────────── HERO ───────────────────────── */
+  #hero {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+  }
+
+  /* Animated sketch lines */
+  .sketch-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 0 2rem;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    color: var(--mist);
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp 1.2s ease 0.5s forwards;
+  }
+
+  .hero-title {
+    font-size: clamp(2.8rem, 8vw, 7rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.05;
+    color: var(--paper);
+    margin: 2rem 0;
+    opacity: 0;
+    animation: fadeUp 1.4s ease 0.9s forwards;
+  }
+
+  .hero-title em { font-style: normal; font-weight: 400; }
+
+  .hero-subtitle {
+    font-size: clamp(0.95rem, 2vw, 1.2rem);
+    font-weight: 300;
+    color: var(--ash);
+    letter-spacing: 0.08em;
+    max-width: 420px;
+    line-height: 1.8;
+    opacity: 0;
+    animation: fadeUp 1.4s ease 1.4s forwards;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 2.4s forwards;
+  }
+
+  .hero-scroll span {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--mist);
+    text-transform: uppercase;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  /* ───────────────────────── IDENTITY ───────────────────────── */
+  #identity {
+    display: flex;
+    align-items: center;
+    padding: 12vh max(1.25rem, 5vw);
+    padding-bottom: max(12vh, env(safe-area-inset-bottom));
+    position: relative;
+  }
+
+  .identity-inner {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(120px, 28%) 1fr;
+    gap: clamp(1.5rem, 4vw, 4.5rem);
+    align-items: start;
+  }
+
+  .identity-art {
+    width: 100%;
+    max-width: 260px;
+    justify-self: start;
+  }
+
+  .identity-drawing {
+    width: 100%;
+    line-height: 0;
+    overflow: hidden;
+    background: var(--charcoal);
+    border: 1px solid var(--bone);
+  }
+
+  .identity-art-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    -webkit-user-drag: none;
+  }
+
+  .identity-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .identity-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    color: var(--mist);
+    text-transform: uppercase;
+  }
+
+  .identity-phrase {
+    font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.3;
+    color: var(--paper);
+  }
+
+  .identity-note {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--ash);
+    line-height: 1.9;
+    max-width: 100%;
+    border-left: 1px solid var(--accent);
+    padding-left: 1.5rem;
+  }
+
+  /* ───────────────────────── GALLERY ───────────────────────── */
+  #gallery {
+    padding: 10vh max(1.25rem, 5vw);
+    padding-bottom: max(10vh, env(safe-area-inset-bottom));
+    position: relative;
+  }
+
+  .gallery-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--bone);
+  }
+
+  .gallery-title {
+    font-size: clamp(1.8rem, 4vw, 3.2rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--paper);
+  }
+
+  .gallery-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--mist);
+  }
+
+  .gallery-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+  }
+
+  .art-card {
+    position: relative;
+    min-height: 55vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3vh 1rem;
+    opacity: 0;
+    transform: translateY(28px) scale(0.9);
+    will-change: opacity, transform;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .art-card-inner {
+    width: 100%;
+    max-width: min(380px, 78vw);
+    line-height: 0;
+    position: relative;
+    border: 1px solid var(--bone);
+    background: var(--charcoal);
+  }
+
+  .art-card-img {
+    width: 100%;
+    max-height: 38vh;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    -webkit-user-drag: none;
+  }
+
+  .art-caption {
+    line-height: 1.5;
+    padding: 0.75rem 0 0;
+    color: var(--mist);
+    font-style: italic;
+    font-size: 0.8rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    text-align: center;
+    max-width: min(380px, 78vw);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .art-card { cursor: none; }
+  }
+
+  /* ───────────────────────── MEMORIES ───────────────────────── */
+  #memories {
+    padding: 12vh max(1.25rem, 5vw);
+    padding-bottom: max(12vh, env(safe-area-inset-bottom));
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .memories-intro {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    color: var(--mist);
+    text-transform: uppercase;
+    margin-bottom: 8rem;
+  }
+
+  .memory-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .memory-card {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 3rem;
+    padding: 5rem 0;
+    border-top: 1px solid var(--bone);
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    position: relative;
+  }
+
+  .memory-card.revealed { opacity: 1; transform: translateY(0); }
+
+  .memory-index {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    padding-top: 0.3rem;
+  }
+
+  .memory-body {}
+
+  .memory-symbol {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--paper);
+    line-height: 1.3;
+    margin-bottom: 1.5rem;
+  }
+
+  .memory-description {
+    font-size: 0.95rem;
+    color: var(--ash);
+    line-height: 2;
+    max-width: 480px;
+    font-family: 'Libre Baskerville', serif;
+    font-style: italic;
+  }
+
+  .memory-accent {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 120px;
+    height: 120px;
+    opacity: 0.08;
+  }
+
+  /* ───────────────────────── FINAL ───────────────────────── */
+  #finale {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--charcoal);
+    position: relative;
+    overflow: hidden;
+    padding: 6rem max(1.25rem, 5vw);
+    padding-bottom: max(6rem, env(safe-area-inset-bottom));
+  }
+
+  .finale-particles {
+    position: absolute;
+    inset: 0;
+  }
+
+  .particle {
+    position: absolute;
+    background: var(--paper);
+    border-radius: 50%;
+    animation: drift linear infinite;
+    opacity: 0;
+  }
+
+  .finale-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 680px;
+  }
+
+  .finale-line {
+    width: 1px;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, var(--accent));
+    margin: 0 auto 4rem;
+    opacity: 0;
+    animation: fadeIn 2s ease 0.5s forwards;
+  }
+
+  .finale-quote {
+    font-size: clamp(1.4rem, 3.5vw, 2.6rem);
+    font-weight: 300;
+    color: var(--paper);
+    line-height: 1.45;
+    opacity: 0;
+    animation: fadeIn 2.5s ease 1s forwards;
+    letter-spacing: 0.02em;
+  }
+
+  .finale-quote em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .finale-sig {
+    margin-top: 5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.45em;
+    color: var(--mist);
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeIn 2s ease 2.5s forwards;
+  }
+
+  /* ───────────────────────── ANIMATIONS ───────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; }
+    50%       { opacity: 0.9; }
+  }
+
+  @keyframes drift {
+    0%   { transform: translateY(0) translateX(0);    opacity: 0; }
+    10%  { opacity: 0.15; }
+    90%  { opacity: 0.05; }
+    100% { transform: translateY(-100vh) translateX(30px); opacity: 0; }
+  }
+
+  @keyframes inkDraw {
+    from { stroke-dashoffset: 1000; }
+    to   { stroke-dashoffset: 0; }
+  }
+
+  @keyframes inkFade {
+    from { opacity: 0; }
+    to   { opacity: 0.12; }
+  }
+
+  /* ─── REVEAL on scroll ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ─── RESPONSIVE — tablet & desktop ─── */
+  @media (min-width: 768px) {
+    .identity-art { max-width: 240px; }
+
+    .gallery-header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 3rem;
+    }
+
+    .art-card {
+      min-height: 50vh;
+    }
+
+    .art-card-img {
+      max-height: 34vh;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    #identity { padding: 10vh 6vw; }
+    #gallery { padding: 10vh 5vw; }
+
+    .identity-art { max-width: 260px; }
+  }
+
+  @media (max-width: 767px) {
+    .hero-content { padding: 0 1.25rem; }
+    .hero-title { font-size: clamp(2.2rem, 10vw, 2.8rem); }
+    .hero-scroll { bottom: max(2rem, env(safe-area-inset-bottom)); }
+    .memory-card { grid-template-columns: 1fr; gap: 1rem; padding: 3rem 0; }
+    .memory-index { display: none; }
+    .memory-accent { display: none; }
+    .memories-intro { margin-bottom: 4rem; }
+    .identity-inner {
+      grid-template-columns: 100px 1fr;
+      gap: 1.25rem;
+    }
+    .identity-art { max-width: 100px; }
+    .identity-text { gap: 2rem; }
+    .identity-note { max-width: 100%; }
+    .art-card { min-height: 48vh; padding: 2vh 0.5rem; }
+    .art-card-img { max-height: 32vh; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<section id="hero">
+  <div class="hero-bg"></div>
+
+  <canvas class="sketch-canvas" id="sketchCanvas"></canvas>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">For the one who sees in fragments</p>
+    <h1 class="hero-title">
+      A collection of<br>
+      <em>fragments</em><br>
+      that belong to you
+    </h1>
+    <p class="hero-subtitle">Not a message. Not a gesture.<br>A mirror — held up slowly, with both hands.</p>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Enter</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ IDENTITY ═══════════════════════════ -->
+<section id="identity">
+  <div class="identity-inner">
+
+    <div class="identity-art reveal">
+      <div class="identity-drawing">
+        <img class="identity-art-img" src="photo_2026-06-07_12-55-23.jpg" alt="Portrait in the studio" loading="lazy" decoding="async">
+      </div>
+    </div>
+
+    <div class="identity-text">
+      <span class="identity-label reveal">Identity — Read Slowly</span>
+      <h2 class="identity-phrase reveal">
+        Lines that feel<br>like thoughts
+      </h2>
+      <p class="identity-note reveal">
+        There are people whose presence is not felt in rooms — it is felt in the spaces between things. In the pause before a word. In the weight of a glance held a moment too long.
+      </p>
+      <h2 class="identity-phrase reveal" style="font-size: clamp(1.3rem, 2.8vw, 2.2rem);">
+        Silence translated<br>into form
+      </h2>
+      <p class="identity-note reveal">
+        The art does not explain itself. Neither do you. And that is exactly why both are worth returning to.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════ GALLERY ═══════════════════════════ -->
+<section id="gallery">
+  <div class="gallery-header reveal">
+    <h2 class="gallery-title">Works from the interior</h2>
+    <span class="gallery-count">03 PIECES — MIXED MEDIA ON PAPER</span>
+  </div>
+
+  <div class="gallery-grid">
+
+    <div class="art-card">
+      <div class="art-card-inner">
+        <img class="art-card-img" src="photo_2026-06-07_12-54-41.jpg" alt="Exhibition portrait" loading="lazy" decoding="async">
+        <div class="art-caption">Standing among the work</div>
+      </div>
+    </div>
+
+    <div class="art-card">
+      <div class="art-card-inner">
+        <img class="art-card-img" src="photo_2026-06-07_12-56-05.jpg" alt="Sketchbook at the cafe" loading="lazy" decoding="async">
+        <div class="art-caption">The Chariot — ink on handmade paper</div>
+      </div>
+    </div>
+
+    <div class="art-card">
+      <div class="art-card-inner">
+        <img class="art-card-img" src="photo_2026-06-07_12-57-39.jpg" alt="Studio desk and journal" loading="lazy" decoding="async">
+        <div class="art-caption">Notes on canvas sizes and tarot</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════ MEMORIES ═══════════════════════════ -->
+<section id="memories">
+  <p class="memories-intro reveal">Memory Flow — I–V</p>
+
+  <div class="memory-flow">
+
+    <div class="memory-card">
+      <div class="memory-index">I</div>
+      <div class="memory-body">
+        <h3 class="memory-symbol">The first time you made something<br>and didn't show anyone</h3>
+        <p class="memory-description">That was the moment. Not the exhibitions, not the posts. The quiet act of creation witnessed only by the work itself. That was when the artist arrived.</p>
+      </div>
+      <svg class="memory-accent" viewBox="0 0 120 120" fill="none">
+        <circle cx="60" cy="60" r="50" stroke="#8b1e1e" stroke-width="0.8"/>
+        <circle cx="60" cy="60" r="35" stroke="#8b1e1e" stroke-width="0.5"/>
+        <circle cx="60" cy="60" r="20" stroke="#8b1e1e" stroke-width="0.3"/>
+      </svg>
+    </div>
+
+    <div class="memory-card">
+      <div class="memory-index">II</div>
+      <div class="memory-body">
+        <h3 class="memory-symbol">The night the page<br>absorbed something real</h3>
+        <p class="memory-description">There are drawings made from skill, and drawings made from urgency. The second kind leave marks that don't know how to close. You make those.</p>
+      </div>
+      <svg class="memory-accent" viewBox="0 0 120 120" fill="none">
+        <line x1="10" y1="60" x2="110" y2="60" stroke="#8b1e1e" stroke-width="0.8"/>
+        <line x1="60" y1="10" x2="60" y2="110" stroke="#8b1e1e" stroke-width="0.8"/>
+        <path d="M35 35 L85 85" stroke="#8b1e1e" stroke-width="0.5"/>
+        <path d="M85 35 L35 85" stroke="#8b1e1e" stroke-width="0.5"/>
+      </svg>
+    </div>
+
+    <div class="memory-card">
+      <div class="memory-index">III</div>
+      <div class="memory-body">
+        <h3 class="memory-symbol">Somewhere between<br>the sketch and the finished thing</h3>
+        <p class="memory-description">The best work lives there. In the draft that was abandoned. In the almost. In the moment before the hand decided what it meant.</p>
+      </div>
+      <svg class="memory-accent" viewBox="0 0 120 120" fill="none">
+        <path d="M20 100 Q60 20 100 100" stroke="#8b1e1e" stroke-width="0.8"/>
+        <path d="M20 80 Q60 30 100 80" stroke="#8b1e1e" stroke-width="0.5"/>
+      </svg>
+    </div>
+
+    <div class="memory-card">
+      <div class="memory-index">IV</div>
+      <div class="memory-body">
+        <h3 class="memory-symbol">The texture of being<br>misunderstood with precision</h3>
+        <p class="memory-description">People who understand you quickly understand only the surface. The real ones need time. And even then, they mostly feel it — they don't explain it.</p>
+      </div>
+      <svg class="memory-accent" viewBox="0 0 120 120" fill="none">
+        <rect x="20" y="20" width="80" height="80" stroke="#8b1e1e" stroke-width="0.8"/>
+        <rect x="35" y="35" width="50" height="50" stroke="#8b1e1e" stroke-width="0.5"/>
+        <rect x="50" y="50" width="20" height="20" stroke="#8b1e1e" stroke-width="0.3"/>
+      </svg>
+    </div>
+
+    <div class="memory-card">
+      <div class="memory-index">V</div>
+      <div class="memory-body">
+        <h3 class="memory-symbol">A year is not a number.<br>It is a collection of decisions.</h3>
+        <p class="memory-description">To keep going. To make the next thing. To exist as someone who translates the world into marks. That is the practice. That is who you are.</p>
+      </div>
+      <svg class="memory-accent" viewBox="0 0 120 120" fill="none">
+        <path d="M60 10 L60 110 M10 60 L110 60 M25 25 L95 95 M95 25 L25 95" stroke="#8b1e1e" stroke-width="0.5" opacity="0.5"/>
+        <circle cx="60" cy="60" r="8" fill="#8b1e1e"/>
+      </svg>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FINALE ═══════════════════════════ -->
+<section id="finale">
+  <canvas class="finale-particles" id="particleCanvas"></canvas>
+
+  <div class="finale-content">
+    <div class="finale-line"></div>
+    <p class="finale-quote">
+      Some people don't need to be<br>
+      <em>celebrated.</em><br>
+      They need to be<br>
+      <em>experienced.</em>
+    </p>
+    <p class="finale-sig">— a gift without a ribbon</p>
+  </div>
+</section>
+
+<script>
+  // ─── CURSOR — desktop only ───
+  const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursorRing');
+
+  if (hasFinePointer && cursor && ring) {
+    let mx = -100, my = -100, rx = -100, ry = -100;
+
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+    (function animCursor() {
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+      rx += (mx - rx) * 0.14; ry += (my - ry) * 0.14;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animCursor);
+    })();
+
+    document.querySelectorAll('a, .art-card').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor.style.width = '16px'; cursor.style.height = '16px'; ring.style.width = '56px'; ring.style.height = '56px'; });
+      el.addEventListener('mouseleave', () => { cursor.style.width = '8px'; cursor.style.height = '8px'; ring.style.width = '36px'; ring.style.height = '36px'; });
+    });
+  }
+
+  // ─── HERO SKETCH CANVAS ───
+  const skCanvas = document.getElementById('sketchCanvas');
+  const skCtx    = skCanvas.getContext('2d');
+  let skLines    = [];
+
+  function resizeSk() {
+    skCanvas.width  = skCanvas.offsetWidth;
+    skCanvas.height = skCanvas.offsetHeight;
+  }
+  resizeSk();
+  window.addEventListener('resize', resizeSk);
+
+  function randBetween(a, b) { return a + Math.random() * (b - a); }
+
+  function generateLines() {
+    skLines = [];
+    const n = 24;
+    for (let i = 0; i < n; i++) {
+      const x1 = randBetween(0, skCanvas.width);
+      const y1 = randBetween(0, skCanvas.height);
+      const len = randBetween(40, 260);
+      const angle = randBetween(-0.6, 0.6);
+      skLines.push({
+        x1, y1,
+        x2: x1 + Math.cos(angle) * len,
+        y2: y1 + Math.sin(angle) * len,
+        progress: 0,
+        speed: randBetween(0.004, 0.014),
+        opacity: randBetween(0.03, 0.1),
+        delay: randBetween(0, 200),
+        timer: 0
+      });
+    }
+  }
+  generateLines();
+
+  function drawSk() {
+    skCtx.clearRect(0, 0, skCanvas.width, skCanvas.height);
+    skLines.forEach(l => {
+      l.timer++;
+      if (l.timer < l.delay) return;
+      l.progress = Math.min(1, l.progress + l.speed);
+      const cx = l.x1 + (l.x2 - l.x1) * l.progress;
+      const cy = l.y1 + (l.y2 - l.y1) * l.progress;
+      skCtx.beginPath();
+      skCtx.moveTo(l.x1, l.y1);
+      skCtx.lineTo(cx, cy);
+      skCtx.strokeStyle = `rgba(139,30,30,${l.opacity * 1.8})`;
+      skCtx.lineWidth = 0.8;
+      skCtx.stroke();
+    });
+    requestAnimationFrame(drawSk);
+  }
+  drawSk();
+
+  // ─── PARTICLE CANVAS ───
+  const pCanvas = document.getElementById('particleCanvas');
+  const pCtx    = pCanvas.getContext('2d');
+  let particles  = [];
+
+  function resizeP() {
+    pCanvas.width  = pCanvas.offsetWidth;
+    pCanvas.height = pCanvas.offsetHeight;
+  }
+  resizeP();
+  window.addEventListener('resize', resizeP);
+
+  function spawnParticle() {
+    particles.push({
+      x: Math.random() * pCanvas.width,
+      y: pCanvas.height + 10,
+      size: Math.random() * 1.5 + 0.3,
+      speed: Math.random() * 0.6 + 0.2,
+      opacity: 0,
+      maxOp: Math.random() * 0.18 + 0.04,
+      drift: (Math.random() - 0.5) * 0.4
+    });
+  }
+
+  function drawP() {
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+    if (Math.random() < 0.08) spawnParticle();
+    particles = particles.filter(p => p.y > -10 && p.opacity >= 0);
+    particles.forEach(p => {
+      p.y     -= p.speed;
+      p.x     += p.drift;
+      p.opacity = p.y < pCanvas.height * 0.8 ? Math.min(p.maxOp, p.opacity + 0.003) : p.opacity - 0.002;
+      pCtx.beginPath();
+      pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      pCtx.fillStyle = `rgba(139,30,30,${p.opacity})`;
+      pCtx.fill();
+    });
+    requestAnimationFrame(drawP);
+  }
+  drawP();
+
+  // ─── SCROLL REVEAL ───
+  const revealEls = document.querySelectorAll('.reveal, .memory-card');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => {
+          e.target.classList.add('visible', 'revealed');
+        }, 80);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => obs.observe(el));
+
+  // ─── GALLERY — smooth scroll fade ───
+  const galleryCards = document.querySelectorAll('.art-card');
+  const galleryState = Array.from(galleryCards).map(() => ({ op: 0, y: 28, scale: 0.9 }));
+
+  function updateGalleryFade() {
+    const vh = window.innerHeight;
+    galleryCards.forEach((card, i) => {
+      const rect = card.getBoundingClientRect();
+      const center = rect.top + rect.height * 0.5;
+      const viewMid = vh * 0.48;
+      const range = vh * 0.52;
+      const dist = Math.abs(center - viewMid) / range;
+      const targetOp = Math.max(0, Math.min(1, 1 - dist * dist * 1.1));
+      const targetY = (1 - targetOp) * 28;
+      const targetScale = 0.9 + targetOp * 0.1;
+
+      galleryState[i].op   += (targetOp   - galleryState[i].op)   * 0.07;
+      galleryState[i].y    += (targetY    - galleryState[i].y)    * 0.07;
+      galleryState[i].scale += (targetScale - galleryState[i].scale) * 0.07;
+
+      const s = galleryState[i];
+      card.style.opacity = s.op;
+      card.style.transform = `translateY(${s.y}px) scale(${s.scale})`;
+    });
+    requestAnimationFrame(updateGalleryFade);
+  }
+  if (galleryCards.length) requestAnimationFrame(updateGalleryFade);
+
+  // ─── PARALLAX on hero — skip on touch devices ───
+  if (hasFinePointer) {
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      const hc = document.querySelector('.hero-content');
+      if (hc) hc.style.transform = `translateY(${y * 0.25}px)`;
+      const heroScroll = document.querySelector('.hero-scroll');
+      if (heroScroll) heroScroll.style.opacity = Math.max(0, 1 - y / 300);
+    }, { passive: true });
+  }
+</script>
+</body>
+</html>
